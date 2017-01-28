@@ -34,7 +34,7 @@ L.tileLayer(
 	}).addTo(map);
 map.setMaxZoom(20)
 
-$.getJSON('http://rawgit.com/murphy214/master/example/lines.geojson',function(data) { addDataToMap0(data,map); });
+$.getJSON('http://rawgit.com/murphy214/lineslice/master/example/lines.geojson',function(data) { addDataToMap0(data,map); });
 	function addDataToMap0(data, map) {
 		var dataLayer = L.geoJson(data, {
 			style: function(feature) {
