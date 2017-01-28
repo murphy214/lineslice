@@ -8,5 +8,5 @@ setup(name='lineslice',
       author='Bennett Murphy',
       author_email='murphy214@live.marshall.edu',
       url='https://github.com/murphy214/lineslice',
-      packages=['lineslice']
+      py_modules=['lineslice']
      )
