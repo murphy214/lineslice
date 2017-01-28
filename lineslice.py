@@ -158,7 +158,14 @@ def make_splits(data,index,points=False):
 
 			# iteropolating to find long and lat
 			long = np.interp(split,distslice.index.values,distslice['LONG'].values)
-			lat = np.interp(long,distslice['LONG'].values,distslice['LAT'].values)
+			longs = distslice['LONG'].values
+			lats = distslice['LAT'].values
+
+			if not sorted(longs) == longs:
+				longs = sorted(longs)
+				lats = [lats[1],lats[0]]
+			
+			lat = np.interp(long,longs,lats)
 
 			# making and appending point
 			point = [long,lat]	
