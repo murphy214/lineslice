@@ -94,6 +94,9 @@ def uniform_split_colors(data,size):
 		colors = []
 		boolthing = False
 		start,end = colorlist[26],colorlist[-1]
+		colors = [start,end] * (((len(splits) + 1) / 2) + 1)
+		colors = colors[:len(splits)+1]
+		'''
 		while not len(colors) == len(splits) + 1 and not split_count == 0:
 			if boolthing == False:
 				boolthing = True
@@ -101,6 +104,7 @@ def uniform_split_colors(data,size):
 			elif boolthing == True:
 				boolthing = False
 				colors.append(end)
+		'''
 		if split_count == 0:
 			splits = ['']
 		splits,colors = ','.join([str(i) for i in sorted(splits)]),','.join(colors)
@@ -142,6 +146,8 @@ def make_splits(data,index,points=False):
 	totallist = []
 
 	# this block of code generates the points that will hinge each split
+	totalsize = len(data)
+	counter = 0
 	for gid,splits in itertools.izip(data['gid'].values.tolist(),data['DISTANCES'].values.tolist()):
 		splits = str.split(splits,',')
 		giddict = index[gid]
@@ -158,9 +164,8 @@ def make_splits(data,index,points=False):
 
 			# iteropolating to find long and lat
 			long = np.interp(split,distslice.index.values,distslice['LONG'].values)
-			longs = distslice['LONG'].values
-			lats = distslice['LAT'].values
-
+			longs = distslice['LONG'].values.tolist()
+			lats = distslice['LAT'].values.tolist()
 			if not sorted(longs) == longs:
 				longs = sorted(longs)
 				lats = [lats[1],lats[0]]
@@ -238,6 +243,9 @@ def make_splits(data,index,points=False):
 		alignments = '|'.join(alignments)
 		totalalignments.append(alignments)
 
+		counter += 1
+
+		print 'Completed Lines [%s / %s]' % (counter,totalsize)
 
 		if points == True:
 			totallist += newlist
