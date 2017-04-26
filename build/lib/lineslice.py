@@ -128,7 +128,6 @@ def randomize_splits_colors(data):
 # and turns them into a dataframe that can be sent into nlgeojson.make_lines correctly
 def make_splits(data,index,points=False):
 	totalalignments = []
-	totalpoints = []
 	splits = [0] * len(data)
 
 	# this block of code generates the points that will hinge each split
@@ -174,7 +173,7 @@ def make_splits(data,index,points=False):
 		
 		# logic for adding points to toal points
 		if points == True:
-			totalpoints += giddf[giddf['BOOL'] == True][['LONG','LAT']].values.tolist()
+			totalpoints += giddf[giddf['BOOL'] == True][['LONG','LAT']].values.tolist() 
 	
 	# logic for only returning the points
 	if points == True:
