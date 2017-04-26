@@ -196,4 +196,7 @@ def make_splits(data,index,points=False):
 	colorkeys = str.split(colorkeys,',')
 	dummydf['COLORKEY'] = colorkeys
 	
+	# filtering out blanks
+	dummydf = dummydf[dummydf.COLORKEY != '@']
+
 	return dummydf

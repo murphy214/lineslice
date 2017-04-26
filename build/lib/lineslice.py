@@ -28,7 +28,7 @@ def make_lineslice_index(data,filename=False):
 	newdict = {}
 	size = len(data)
 	count2 = 0
-	for gid,coords in data[['gid','coords']].values.tolist():
+	for LINEID,coords in data[['LINEID','coords']].values.tolist():
 		coords = get_cords_json(coords)
 		count = 0
 		totaldistance = 0
@@ -43,7 +43,7 @@ def make_lineslice_index(data,filename=False):
 		newlist = pd.DataFrame(newlist,columns = ['LONG','LAT','DISTANCE'])
 		print 'Making Split Index: [%s / %s]' % (count2,size)
 		count2 += 1
-		newdict[gid] = newlist.set_index('DISTANCE')
+		newdict[LINEID] = newlist.set_index('DISTANCE')
 	
 	# logic for writing to h5 file
 	if not filename == False:
@@ -57,12 +57,12 @@ def make_lineslice_index(data,filename=False):
 # wrapper function for reading a split index into memory
 def read_lineslice_index(filename):
 	with pd.HDFStore(filename) as f:
-		# getting unique gids
-		gids = f.keys()
+		# getting unique LINEIDs
+		LINEIDs = f.keys()
 
 		# now creating dictionary
 		newdict = {}
-		for i in gids:
+		for i in LINEIDs:
 			newdict[int(i[2:])] = f[str(i)]
 	return newdict
 
@@ -72,7 +72,7 @@ def uniform_split_colors(data,size):
 	colorlistsize = len(colorlist)-1
 	totalsplits = []
 	totalcolors = []
-	for gid,maxdistance in data[['gid','maxdistance']].values.tolist():	
+	for LINEID,maxdistance in data[['LINEID','maxdistance']].values.tolist():	
 		# creating splits
 		split_count = int((maxdistance / size))
 		splits = np.linspace(0.,split_count*size,split_count+1).tolist()[1:]
@@ -108,7 +108,7 @@ def randomize_splits_colors(data):
 	colorlistsize = len(colorlist)-1
 	totalsplits = []
 	totalcolors = []
-	for gid,maxdistance in data[['gid','maxdistance']].values.tolist():	
+	for LINEID,maxdistance in data[['LINEID','maxdistance']].values.tolist():	
 		split_count = random.randint(2,10)
 		splits = []
 		colors = []
@@ -132,19 +132,19 @@ def make_splits(data,index,points=False):
 
 	# this block of code generates the points that will hinge each split
 	totalsize = len(data)
-	for gid,splits in itertools.izip(data['gid'].values.tolist(),data['DISTANCES'].values.tolist()):
-		# creating splits as a list and getting the correct giddf
+	for LINEID,splits in itertools.izip(data['LINEID'].values.tolist(),data['DISTANCES'].values.tolist()):
+		# creating splits as a list and getting the correct LINEIDdf
 		splits = str.split(splits,',')
-		giddf = index[gid]
+		LINEIDdf = index[LINEID]
 
-		# setting up giddf
-		giddf = giddf.reindex(sorted(giddf.index.values.tolist() + [float(i) for i in splits]))
-		giddf['BOOL'] = pd.isnull(giddf['LAT'])
-		giddf['range'] = range(len(giddf))
-		giddf['DISTANCE'] = giddf.index
+		# setting up LINEIDdf
+		LINEIDdf = LINEIDdf.reindex(sorted(LINEIDdf.index.values.tolist() + [float(i) for i in splits]))
+		LINEIDdf['BOOL'] = pd.isnull(LINEIDdf['LAT'])
+		LINEIDdf['range'] = range(len(LINEIDdf))
+		LINEIDdf['DISTANCE'] = LINEIDdf.index
 		
 		# getting pivot inds
-		pivotinds =  giddf[giddf['BOOL'] == True]['range'].values.tolist() + [len(giddf) - 1]
+		pivotinds =  LINEIDdf[LINEIDdf['BOOL'] == True]['range'].values.tolist() + [len(LINEIDdf) - 1]
 		oldrow = 0
 		indlist = []
 		for row in pivotinds:
@@ -153,14 +153,14 @@ def make_splits(data,index,points=False):
 			oldrow = row
 
 		# iterpolating points
-		giddf[['LONG','LAT']] =  giddf[['DISTANCE','LONG','LAT']].interpolate()[['LONG','LAT']]
+		LINEIDdf[['LONG','LAT']] =  LINEIDdf[['DISTANCE','LONG','LAT']].interpolate()[['LONG','LAT']]
 		
 		# creating the coord field
 		# that will be indexed as a regular list
-		giddf['COORD'] = '[' + giddf['LONG'].astype(str) + ',' + giddf['LAT'].astype(str) + ']'
+		LINEIDdf['COORD'] = '[' + LINEIDdf['LONG'].astype(str) + ',' + LINEIDdf['LAT'].astype(str) + ']'
 
 		# creating a vanilla list of string coord points
-		coords = giddf['COORD'].values.tolist()
+		coords = LINEIDdf['COORD'].values.tolist()
 
 		# iterating through each set of inds slicing the 
 		# correct coords, stringigy them appending and finally
@@ -173,7 +173,7 @@ def make_splits(data,index,points=False):
 		
 		# logic for adding points to toal points
 		if points == True:
-			totalpoints += giddf[giddf['BOOL'] == True][['LONG','LAT']].values.tolist() 
+			totalpoints += LINEIDdf[LINEIDdf['BOOL'] == True][['LONG','LAT']].values.tolist() 
 	
 	# logic for only returning the points
 	if points == True:
@@ -185,15 +185,18 @@ def make_splits(data,index,points=False):
 	data['ALIGNMENTS'] = totalalignments	
 	data['a'] = 'a'
 	colorkeys = data.groupby('a')['COLORKEYS'].apply(lambda x:"%s" % ','.join(x))['a']
-	dummydf = pd.DataFrame(data.ALIGNMENTS.str.split('|').tolist(), index=data.gid).stack()
+	dummydf = pd.DataFrame(data.ALIGNMENTS.str.split('|').tolist(), index=data.LINEID).stack()
 	dummydf = dummydf.reset_index()
-	dummydf = dummydf[['gid',0]]
-	dummydf.columns = ['gid','ALIGNMENTS']
-	data = data.set_index('gid')
-	data = data.drop('ALIGNMENTS',axis=1).loc[dummydf.gid.values]
-	dummydf[data.columns] = data.reset_index().drop('gid',axis=1)
+	dummydf = dummydf[['LINEID',0]]
+	dummydf.columns = ['LINEID','ALIGNMENTS']
+	data = data.set_index('LINEID')
+	data = data.drop('ALIGNMENTS',axis=1).loc[dummydf.LINEID.values]
+	dummydf[data.columns] = data.reset_index().drop('LINEID',axis=1)
 	dummydf['coords'] = dummydf['ALIGNMENTS']
 	colorkeys = str.split(colorkeys,',')
 	dummydf['COLORKEY'] = colorkeys
 	
+	# filtering out blanks
+	dummydf = dummydf[dummydf.COLORKEY != '@']
+
 	return dummydf
