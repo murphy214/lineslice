@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='lineslice',
-      version='1.0',
+      version='1.1',
       description='whatevs.',
       author='Bennett Murphy',
       author_email='murphy214@live.marshall.edu',
