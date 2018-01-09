@@ -1,4 +1,4 @@
-from lineslice3 import distance_along
+from lineslice import distance_along
 import json
 import numpy as np
 
