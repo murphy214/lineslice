@@ -1,10 +1,10 @@
 # LineSlice 
 **A line segment segmentation libray. For more precise visualization of linestring.**
 
-![](https://user-images.githubusercontent.com/10904982/34705639-cf129684-f4cf-11e7-98d0-9caf99f70277.png)
-![](https://user-images.githubusercontent.com/10904982/34705637-cd254e5c-f4cf-11e7-9b55-1f2b0dd85430.png)
-
-
+# Install 
+```
+pip install git+https://github.com/murphy214/lineslice
+```
 
 # Example 
 
@@ -35,3 +35,9 @@ featurecollection = {"features":feats,"type":"FeatureCollection"}
 with open('lines.geojson','wb') as f:
 	f.write(json.dumps(featurecollection))
 ```
+
+# Output 
+
+![](https://user-images.githubusercontent.com/10904982/34705639-cf129684-f4cf-11e7-98d0-9caf99f70277.png)
+![](https://user-images.githubusercontent.com/10904982/34705637-cd254e5c-f4cf-11e7-9b55-1f2b0dd85430.png)
+
